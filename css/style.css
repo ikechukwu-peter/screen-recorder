@@ -4,9 +4,15 @@
   box-sizing: border-box;
   scroll-behavior: smooth;
 }
+<<<<<<< HEAD
 html,
 body {
   position: relative;
+=======
+
+html,
+body {
+>>>>>>> 5744ddbb8c45a33549de21c13d54cd2cec40663d
   font-family: "Roboto", sans-serif;
   font-size: 16px;
   line-height: 1.5;
