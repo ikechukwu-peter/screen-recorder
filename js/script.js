@@ -6,8 +6,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const toggleUserVideoCheckbox = document.getElementById("toggleUserVideo");
 
   let mediaStream, userMediaStream, mediaRecorder;
+
   let recordedChunks = [];
 
+  // start recording function
   async function startRecording() {
     try {
       recordedChunks = [];
@@ -15,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (screenRecorder.src) {
         URL.revokeObjectURL(screenRecorder.src);
       }
+
       const screenMedia = await navigator.mediaDevices.getDisplayMedia({
         video: true,
       });
@@ -31,14 +34,16 @@ document.addEventListener("DOMContentLoaded", function () {
         video: true,
       });
 
-      userVideo.srcObject = userMediaStream;
+      userMediaStream.srcObject = userMediaStream;
 
       mediaStream = new MediaStream([
         ...screenMedia.getTracks(),
         ...audioStream.getTracks(),
       ]);
 
-      mediaRecorder = new MediaRecorder(mediaStream);
+      mediaRecorder = new MediaRecorder(mediaStream, {
+        mimeType: "video/webm",
+      });
 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -50,16 +55,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const blob = new Blob(recordedChunks, {
           type: "video/webm",
         });
-
         const url = URL.createObjectURL(blob);
         screenRecorder.src = url;
-        downloadButton.href = url;
       };
 
-      // stop recording when user clicks on stop sharing screen
-      mediaStream.getVideoTracks()[0].addEventListener("ended", () => {
+      // stop recording when screen share is stopped
+      mediaStream.getVideoTracks()[0].onended = () => {
         stopRecording();
-      });
+      };
 
       mediaRecorder.start();
       startRecordingButton.disabled = true;
@@ -73,6 +76,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // stop recording function
   function stopRecording() {
     if (mediaRecorder && mediaRecorder.state === "recording") {
       mediaRecorder.stop();
